@@ -1,0 +1,138 @@
+= Lab Guide: Sign and Validate New Project Content
+
+
+_A guide to signing new project files and validating the updated project in automation controller._
+
+---
+
+[discrete]
+====
+*Estimated time to complete: 10 minutes*
+====
+
+In the last challenge, you added playbooks to the `ansible-sign-demo` local repository. You will now sign these new files with `ansible-sign` and check the behavior of automation controller when the correct signatures are included.
+
+---
+
+== Task 1: Edit the MANIFEST.in to Include New Files
+
+First, you must add the new files to the `MANIFEST.in` file so the `ansible-sign` tool knows to sign them.
+
+Run the following command to append the new directives to your `MANIFEST.in`:
+
+[source,bash]
+----
+echo -e "recursive-include playbooks *.yml\ninclude inventory" >> /home/rhel/ansible-sign-demo/MANIFEST.in
+----
+
+You can verify the changes by running `cat`:
+
+[source,bash]
+----
+cat /home/rhel/ansible-sign-demo/MANIFEST.in
+----
+
+NOTE: The `recursive-include` directive is used to include files from a directory (in this case, all `*.yml` files in the `playbooks` directory), while `include` is used for single files.
+
+---
+
+== Task 2: Sign the Local Project Again
+
+Now that the manifest is updated, run the `ansible-sign` command again in the `Terminal`:
+
+[source,bash]
+----
+ansible-sign project gpg-sign ansible-sign-demo
+----
+
+Run the following command to verify that the checksums for the new files are now included in the signature manifest:
+
+[source,bash]
+----
+cat /home/rhel/ansible-sign-demo/.ansible-sign/sha256sum.txt
+----
+
+From the output, you will see that the checksums for `inventory` and `playbooks/hello_world.yml` are now included, indicating the new files are signed.
+
+---
+
+== Task 3: Push the New Signatures to Gitea
+
+Now you will push the updated signatures and manifest to the Gitea server. First, navigate to the project directory:
+
+[source,bash]
+----
+cd /home/rhel/ansible-sign-demo
+----
+
+You can run `git status` to see the modified files. Now, add the changed files to git staging:
+
+[source,bash]
+----
+git add MANIFEST.in .ansible-sign/
+----
+
+Commit the changes:
+
+[source,bash]
+----
+git commit -m "Adding signatures for new files in the project"
+----
+
+Finally, push the new files and signatures to the Gitea SCM. This system has credentials cached, so you do not need to log in.
+
+[source,bash]
+----
+git push
+----
+
+---
+
+== Task 4: Run the Project Sync in Automation Controller
+
+Go to the `Automation-Controller` tab and log in using the credentials below. Once logged in, go to **Resources** → **Projects** on the left-hand side menu and click on the "Signed Project". Now, click the **Sync** button (the icon with two circling arrows) to sync the new changes.
+
+[IMPORTANT]
+====
+.Automation Controller Credentials
+* **Username:** `admin`
+* **Password:** `ansible123!`
+====
+
+The project sync should pass now, as the signatures were added for the new files in the project.
+
+NOTE: You can always go to the `Gitea` tab to check the status of the project and verify that the new files and signatures were pushed.
+
+---
+
+== Task 5: Check Signature Validation in Controller
+
+Navigate to the **Jobs** view from the left menu and click on the most recent job for the "Signed Project". The **Successful** status indicates the signature validation passed. You can also verify this by scrolling through the job output to find these tasks:
+
+[source,text]
+----
+PLAY [Perform project signature/checksum verification] *************************
+
+TASK [Verify project content using GPG signature] ******************************
+ok: [localhost]
+
+TASK [Verify project content against checksum manifest] ************************
+ok: [localhost]
+----
+
+The output indicates that the signature validation was successful.
+
+---
+
+== Summary
+
+* You made changes to the `MANIFEST.in` file to include new files in the project.
+* You signed the new files in the project using `ansible-sign`, and automation controller was now able to verify the new files and their signatures.
+
+== Conclusion
+
+This concludes this lab. We hope it was able to demonstrate the advantages and changes to Ansible Automation Platform with the introduction of project signing.
+
+== Troubleshooting
+
+If you have encountered an issue or have noticed something not quite right, please link:https://github.com/ansible/instruqt/issues/new[open an issue].
