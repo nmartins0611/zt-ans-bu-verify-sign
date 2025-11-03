@@ -132,7 +132,7 @@ Next, navigate to **Resources** → **Projects** and click **Add**. Fill out the
 | Name | `Signed Project`
 | Source Control Type | `Git`
 | Content Signature Validation Credential | `ansible-sign`
-| Source Control URL | `https://gitea:8443/student/ansible-sign-demo.git`
+| Source Control URL | `http://gitea:3000/student/ansible-sign-demo.git`
 |===
 
 Click **Save**. This creates the project and automatically starts a sync job that will use your GPG credential for validation.
