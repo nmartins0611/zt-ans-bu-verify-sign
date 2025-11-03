@@ -1,15 +1,5 @@
-* xref:module-01.adoc[1. Automated Backups]
-** xref:module-01.adoc#backupLinux[Backing up Linux]
-** xref:module-01.adoc#backupWindows[Windows VSS]
-** xref:module-01.adoc#codeSnippets[Code Snippets]
-
-* xref:module-02.adoc[2. Infrastructure Awareness]
-** xref:module-02.adoc#atscale[System Reports]
-** xref:module-02.adoc#compliance[Compliance Reporting]
-** xref:module-02.adoc#codeSnippets[Code Snippets]
-
-* xref:module-03.adoc[3. Windows Reports]
-** xref:module-03.adoc#lastCheck[Check Schedule]
-** xref:module-03.adoc#codeSnippets[Code Snippets]
-
-
+* xref:module-01.adoc[Understanding the lab environment]
+* xref:module-02.adoc[Create gpg keypair to sign projects locally]
+* xref:module-03.adoc[Sign an empty Ansible project using ansible-sign and validate it in Automation Controller]
+* xref:module-04.adoc[Add new project content and validate without signing it]
+* xref:module-05.adoc[Include the new files in signing manifest and re-sign and verify the project]
