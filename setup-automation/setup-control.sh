@@ -18,9 +18,9 @@ chown -R rhel:rhel /home/$USER/.ssh
 
 git config credential.helper store
 touch /home/rhel/.git-credentials
-echo 'https://student:learn_ansible' >> /home/rhel/.git-credentials
+echo 'https://gitea:gitea' >> /home/rhel/.git-credentials
 git push -u origin master
-git config --global user.name "Student"
+git config --global user.name "gitea"
 git config --global user.email student@localhost
 
 sudo mkdir -p /home/rhel/ansible-sign-demo
