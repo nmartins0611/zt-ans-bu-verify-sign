@@ -1,192 +1,174 @@
-= Windows Patching Report with Ansible
-:toc:
-:toc-placement: auto
+= Lab Guide: Sign and Validate a Project
 
-== Introduction
+_A guide to signing an empty project using ansible-sign and validating it in automation controller._
 
-Generating patch reports is a critical operational task for maintaining system security and compliance. When you don't have direct access to Windows systems, Ansible becomes an invaluable tool for gathering patch information and delivering actionable reports to your Windows administration teams.
+---
 
-This lab demonstrates how to use Ansible to scan Windows systems for required patches and generate comprehensive reports that can be easily shared with stakeholders.
-
-=== Lab Environment Setup
-
-==== Access Credentials
-
-[cols="1,1"]
-|===
-| Username | Password
-
-| admin
-| ansible123!
-|===
-
-
-
-== Lab Exercise
-
-=== Exercise 1: Creating a Windows Update Report
-
-We'll create a dynamic patch report using Ansible's templating capabilities and publish it as a web page directly on the Windows host for easy access.
-
-==== Step 1: Access the Windows Update Template
-
-. Navigate to *Automation Execution* → *Templates*
-. Select the *Windows Update Report* template
-
-Before launching the template, we need to configure a survey to allow users to specify which type of updates they want to scan for.
-
-.Windows Update Template
-image::update-template.png[Update Template Interface]
-
-==== Step 2: Configure the Survey
-
-. Navigate to the *Survey* tab
-. Create a new survey question with the following details:
-
-===== Survey Configuration:
-
-* *Question:* `Which update category are you wanting to search for?`
-* *Description:* `Windows Update Category`
-* *Answer variable name:* `update_category`
-* *Answer type:* `Multiple Choice (single select)`
-
-===== Multiple Choice Options:
-
-Add each of the following options (click the + button after entering each option):
-
-* Security Updates
-* Critical Updates  
-* Tools
-* Definition Updates
-* Updates
-
-[NOTE]
+[discrete]
 ====
-To add each multiple choice option, fill in the field and then click the + button to add it to the list.
+*Estimated time to complete: 10 minutes*
 ====
 
-.Survey Configuration
-image::survey.png[Survey Setup Interface]
+In this challenge, you will sign the empty `ansible-sign-demo` repository using the `ansible-sign` tool. You will then push the signatures to Gitea and import the repository as a Project in automation controller to verify its integrity.
 
-==== Step 3: Enable and Save the Survey
+---
 
-. Click *Create survey question* to save your configuration
-. Enable the survey using the toggle at the top of the panel
+== Task 1: Create a MANIFEST.in File
 
-.Survey Enablement
-image::survey-enable.png[Survey Enable Toggle]
+First, create a `MANIFEST.in` file in the `ansible-sign-demo` local repository. This file acts as a directive, telling the `ansible-sign` tool which files to include or exclude from the signature.
 
-==== Step 4: Execute the Patch Scan
+Run the following command in the `Terminal` window:
 
-. Launch the template
-. From the survey dropdown, select *Security Updates*
-. Wait for the template execution to complete
-
-The Ansible playbook will connect to the Windows server, scan for available security updates, and generate a comprehensive HTML report.
-
-==== Step 5: Review the Generated Report
-
-. Once the template completes, navigate to the *Windows Report* tab
-. Review the outstanding updates that are needed for the system
-
-The report will display all available security updates, including:
-- Update titles and descriptions
-- Knowledge Base (KB) numbers
-- Installation requirements
-- Download sizes
-
-.Windows Update Report
-image::update-report.png[Windows Update Report Results]
-
-[TIP]
-====
-You can re-run the template with different update categories to generate focused reports for specific types of patches (Critical Updates, Definition Updates, etc.).
-====
-
-=== Exercise 2: Verifying Scheduled Tasks
-
-Let's verify that our previously scheduled backup tasks are running correctly.
-
-==== Step 1: Check Scheduled Job Execution
-
-. Navigate to *Automation Execution* → *Jobs*
-. Observe that your *Server Backup - VSS/Windows* jobs that were scheduled earlier have been running automatically
-
-==== Step 2: Verify VSS Snapshots
-
-. Execute the *Check Windows Backups* template
-. Confirm that VSS snapshots are being created successfully
-
-.VSS Snapshots Verification
-image::vss-snaps.png[VSS Snapshots Status]
-
-This verification confirms that your automated backup strategy is working correctly alongside your new patch reporting capabilities.
-
-== Code Reference
-
-=== Windows Update Report Implementation
-
-Here's the key Ansible code used for generating Windows patch reports:
-
-[source,yaml]
+[source,bash]
 ----
-tasks:
-  - name: Create site directory structure
-    ansible.windows.win_file:
-      path: "{{ report_path }}"
-      state: directory
-
-  - name: Show us the updates
-    debug:
-      msg: "{{ update_category }}"
-
-  - name: Check available updates
-    ansible.windows.win_updates:
-      category_names:
-       - "{{ update_category | default(omit) }}"
-      state: searched
-    register: update_result
-
-  - name: Generate HTML report
-    ansible.windows.win_template:
-      src: templates/win_patch_report.html.j2
-      dest: C:\inetpub\wwwroot\index.html
-      force: true
-    notify: restart_iis
-    vars:
-      updates: "{{ update_result.updates }}"
-
-handlers:
-  - name: restart_iis
-    ansible.windows.win_service:
-      name: W3Svc
-      state: restarted
-      start_mode: auto
+cat << EOF > /home/rhel/ansible-sign-demo/MANIFEST.in
+recursive-exclude .git *
+include README.md
+EOF
 ----
 
-=== Key Components Explained
+---
 
-**Update Scanning:**
-- Uses `ansible.windows.win_updates` module in search mode
-- Filters by specified update categories
-- Registers results for report generation
+== Task 2: Sign the Project with ansible-sign
 
-**Report Generation:**
-- Leverages Jinja2 templating for dynamic HTML creation
-- Publishes reports directly to IIS web server
-- Provides accessible, shareable format for stakeholders
+Now, run the following command in the `Terminal` to sign the project:
 
-**Service Management:**
-- Automatically restarts IIS after report publication
-- Ensures web service availability for report access
+[source,bash]
+----
+ansible-sign project gpg-sign ansible-sign-demo
+----
 
-== Key Takeaways
+This command signs the `ansible-sign-demo` project. You can confirm that new files were created in the `.ansible-sign` directory. `ansible-sign` used the `MANIFEST.in` file to determine what to sign, notably excluding the `.git` directory.
 
-Congratulations! You've successfully automated multiple critical IT operations tasks:
+Let's inspect the new files. First, change into the project directory:
 
-* ✅ **Automated Backup Operations**: Implemented XFS backups for Linux and VSS snapshots for Windows
-* ✅ **Infrastructure Data Collection**: Gathered comprehensive system facts and generated dynamic reports
-* ✅ **Security Compliance**: Automated OpenSCAP compliance scanning and reporting
-* ✅ **Patch Management**: Created dynamic Windows update reports with configurable survey options
-* ✅ **Scheduled Automation**: Configured recurring tasks that run without manual intervention
+[source,bash]
+----
+cd ansible-sign-demo
+----
 
+View the `MANIFEST.in` file:
+
+[source,bash]
+----
+cat MANIFEST.in
+----
+
+Now check the checksums and signature files. These files help automation controller validate the project's integrity.
+
+[source,text]
+----
+cat .ansible-sign/sha256sum.txt
+----
+[source,text]
+----
+cat .ansible-sign/sha256sum.txt.sig
+----
+
+---
+
+== Task 3: Push Signatures to Gitea
+
+Add the new signature files to git staging:
+
+[source,bash]
+----
+git add .ansible-sign/ MANIFEST.in
+----
+
+Commit the changes:
+
+[source,bash]
+----
+git commit -m "Adding signatures for empty project"
+----
+
+Push the new files to the Gitea SCM. This system has credentials cached, so you do not need to log in.
+
+[source,bash]
+----
+git push
+----
+
+---
+
+== Task 4: Import and Validate the Project in Automation Controller
+
+Now you will add your public key to automation controller as a credential and create a new project that uses it for validation.
+
+=== Create the GPG Credential
+
+First, you need to add the public key (which you created in the previous challenge) to automation controller. Copy the key to your clipboard by displaying its contents in the terminal:
+
+[source,bash]
+----
+cat ~/signing_demo.asc
+----
+
+Go to the `Automation-Controller` tab and log in using the credentials below. Navigate to **Resources** → **Credentials** and click **Add**.
+
+[IMPORTANT]
+====
+.Automation Controller Credentials
+* **Username:** `admin`
+* **Password:** `ansible123!`
+====
+
+Fill out the form with these details:
+
+* **Name:** `ansible-sign`
+* **Credential Type:** `GPG Public Key`
+* **Public Key:** Paste the entire public key contents (including the `-----BEGIN...` and `-----END...` headers and footers) from your clipboard.
+
+Click **Save**.
+
+=== Create the Project
+
+Next, navigate to **Resources** → **Projects** and click **Add**. Fill out the form with the following details:
+
+[cols="1,2a"]
+|===
+| Parameter | Value
+| Name | `Signed Project`
+| Source Control Type | `Git`
+| Content Signature Validation Credential | `ansible-sign`
+| Source Control URL | `https://gitea:8443/student/ansible-sign-demo.git`
+|===
+
+Click **Save**. This creates the project and automatically starts a sync job that will use your GPG credential for validation.
+
+---
+
+== Task 5: Check Signature Validation
+
+Navigate to the **Jobs** view from the left menu. Click on the most recent job, which should be the project sync for your new `Signed Project`. If the job was successful, the signature validation passed.
+
+You can also verify this by scrolling through the job output to find these tasks, which confirm the validation was successful:
+
+[source,text]
+----
+PLAY [Perform project signature/checksum verification] *************************
+
+TASK [Verify project content using GPG signature] ******************************
+ok: [localhost]
+
+TASK [Verify project content against checksum manifest] ************************
+ok: [localhost]
+----
+
+In the next challenge, you will add more files to this project and see what happens if you forget to sign them.
+
+---
+
+== Summary
+
+* You created a `MANIFEST.in` file, which tells the `ansible-sign` tool which files to sign.
+* You used your public key as a credential in automation controller to verify the signature of the files in the project.
+
+== Next Steps
+
+Press the `Next` button below to go to the next challenge once you've completed the tasks.
+
+== Troubleshooting
+
+If you have encountered an issue or have noticed something not quite right, please link:https://github.com/ansible/instruqt/issues/new[open an issue].
