@@ -1,7 +1,7 @@
 #!/bin/sh
 echo "Starting module called module-02" >> /tmp/progress.log
 
-udo -u rhel bash -c : && RUNAS="sudo -u rhel"
+sudo -u rhel bash -c : && RUNAS="sudo -u rhel"
 
 #Runs bash with commands between '_' as nobody if possible
 $RUNAS bash<<_
