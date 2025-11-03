@@ -1,0 +1,145 @@
+= Lab Guide: Add and Validate Unsigned Project Content
+
+_A guide to adding new, unsigned files to a signed project and observing the validation failure in automation controller._
+
+---
+
+[discrete]
+====
+*Estimated time to complete: 10 minutes*
+====
+
+In this challenge, you will add playbooks and other files to the `ansible-sign-demo` local repository. You will intentionally skip signing these new files with `ansible-sign` to observe the behavior of automation controller when signature validation fails.
+
+---
+
+== Task 1: Add New Playbooks to the Local Project
+
+First, you will create a new `playbooks` directory and add a `hello_world.yml` playbook to your local project. Run the following commands in the `Terminal`:
+
+[source,bash]
+----
+mkdir /home/rhel/ansible-sign-demo/playbooks
+----
+[source,bash]
+----
+cat << EOF > /home/rhel/ansible-sign-demo/playbooks/hello_world.yml
+---
+# This playbook prints a simple debug message
+- name: Hello world
+  hosts: all
+  tasks:
+  - name: Print debug message
+    debug:
+      msg: Hello, world!
+EOF
+----
+
+NOTE: With these challenges, we are trying to mimic a real-world scenario where you have playbooks in a project that will be used to automate workflows in automation controller.
+
+---
+
+== Task 2: Add an Inventory File to the Local Project
+
+Next, run the following command in the `Terminal` window to create an inventory file in the project.
+
+[source,bash]
+----
+cat << EOF > /home/rhel/ansible-sign-demo/inventory
+# This is an empty inventory file that will be signed using ansible-sign
+EOF
+----
+
+---
+
+== Task 3: Push the New Files to Gitea
+
+Now, run the following commands to push the new, unsigned files to your Gitea server. First, change into the project directory:
+
+[source,bash]
+----
+cd /home/rhel/ansible-sign-demo
+----
+
+Check the git status to see the new files you've added. You can also run `git diff` to see the additions.
+
+[source,bash]
+----
+git status
+----
+
+Add the new files for git staging:
+
+[source,bash]
+----
+git add playbooks/ inventory
+----
+
+Commit the changes:
+
+[source,bash]
+----
+git commit -m "Adding new files in the project"
+----
+
+Finally, push the new files to the Gitea SCM. This system has credentials cached, so you do not need to log in.
+
+[source,bash]
+----
+git push
+----
+
+NOTE: We are intentionally *not* running `ansible-sign` in this challenge. This is to show how validation will fail if files are added without being signed or excluded via the `MANIFEST.in` file.
+
+---
+
+== Task 4: Run the Project Sync in Automation Controller
+
+Go to the `Automation-Controller` tab and log in using the credentials below. Once logged in, go to **Resources** → **Projects** on the left-hand side menu and click on the "Signed Project". Now, click the **Sync** button (the icon with two circling arrows) to sync the new changes.
+
+[IMPORTANT]
+====
+.Automation Controller Credentials
+* **Username:** `admin`
+* **Password:** `ansible1s23!`
+====
+
+The project sync should fail because the new files in the project were not signed.
+
+NOTE: You can always go to the `Gitea` tab to check the status of the project and verify that the new files were pushed to the repository.
+
+---
+
+== Task 5: Check Signature Validation in Controller
+
+Navigate to **Jobs** from the left menu and click on the most recent job, which should be the failed project sync for "Signed Project". The unsuccessful job indicates that the signature validation failed.
+
+You can verify this by looking at the tasks in the job run. Scroll through the job output to find the following tasks:
+
+[source,text]
+----
+PLAY [Perform project signature/checksum verification] *************************
+
+TASK [Verify project content using GPG signature] ******************************
+ok: [localhost]
+
+TASK [Verify project content against checksum manifest] ************************
+fatal: [localhost]: FAILED! => {"changed": false, "msg": "{'added': ['inventory', 'playbooks/hello_world.yml'], 'removed': []}"}
+----
+
+The output clearly indicates that the signature validation was unsuccessful and lists which new files (`inventory` and `playbooks/hello_world.yml`) were added to the project but not signed.
+
+---
+
+== Summary
+
+* In this challenge, you added new files to the project and skipped signing them to see the behavior in automation controller.
+* Automation controller failed the project sync and reported which specific files were not signed.
+
+== Next Challenge
+
+Press the `Next` button below to go to the next challenge once you've completed the tasks.
+
+== Encountered an issue?
+
+If you have encountered an issue or have noticed something not quite right, please link:https://github.com/ansible/instruqt/issues/new[open an issue].
