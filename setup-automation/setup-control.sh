@@ -22,3 +22,6 @@ echo 'https://student:learn_ansible' >> /home/rhel/.git-credentials
 git push -u origin master
 git config --global user.name "Student"
 git config --global user.email student@localhost
+
+sudo mkdir -p /home/rhel/ansible-sign-demo
+sudo chown rhel:rhel /home/rhel/ansible-sign-demo
