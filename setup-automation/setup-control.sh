@@ -8,7 +8,8 @@ systemctl disable systemd-tmpfiles-setup.service
 # ansible-galaxy collection install community.general
 # ansible-galaxy collection install ansible.windows
 # ansible-galaxy collection install microsoft.ad
-
+dnf install python3 python3-pip -y
+pip3 install ansible-sign
 # # ## setup rhel user
 touch /etc/sudoers.d/rhel_sudoers
 echo "%rhel ALL=(ALL:ALL) NOPASSWD:ALL" > /etc/sudoers.d/rhel_sudoers
