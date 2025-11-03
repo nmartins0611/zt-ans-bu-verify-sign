@@ -1,4 +1,5 @@
-
+#!/bin/sh
+echo "Starting module called module-04" >> /tmp/progress.log
 
 sudo -u rhel bash -c : && RUNAS="sudo -u rhel"
 
