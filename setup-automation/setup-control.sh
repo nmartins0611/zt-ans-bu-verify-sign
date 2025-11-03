@@ -20,7 +20,7 @@ chown -R rhel:rhel /home/$USER/.ssh
 $RUNAS bash<<_
 echo 2: \$USER
 awx -k settings modify AWX_TASK_ENV '{ "HOME": "/var/lib/awx", "GIT_SSL_NO_VERIFY": "True" }' --conf.host https://localhost --conf.username admin --conf.password ansible123!
-curl -k -H "Content-Type: application/json" -d '{"name":"ansible-sign-demo"}' -u student:learn_ansible https://gitea:8443/api/v1/user/repos
+curl -k -H "Content-Type: application/json" -d '{"name":"ansible-sign-demo"}' -u student:learn_ansible https://gitea:3000/api/v1/user/repos
 mkdir /home/rhel/ansible-sign-demo
 cd /home/rhel/ansible-sign-demo
 git init
@@ -31,7 +31,7 @@ cat << EOF > /home/rhel/ansible-sign-demo/README.md
 ## and how to validate signed projects in automation controller
 EOF
 git add README.md; git commit -m "Initial Commit"
-git remote add origin https://gitea:8443/student/ansible-sign-demo.git
+git remote add origin https://gitea:3000/student/ansible-sign-demo.git
 git config credential.helper store
 touch /home/rhel/.git-credentials
 echo 'https://student:learn_ansible@gitea%3a8443' >> /home/rhel/.git-credentials
