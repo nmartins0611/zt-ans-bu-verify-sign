@@ -90,7 +90,7 @@ git push
 
 == Task 4: Run the Project Sync in Automation Controller
 
-Go to the `Automation-Controller` tab and log in using the credentials below. Once logged in, go to **Resources** → **Projects** on the left-hand side menu and click on the "Signed Project". Now, click the **Sync** button (the icon with two circling arrows) to sync the new changes.
+Go to the `Automation-Controller` tab and log in using the credentials below. Once logged in, go to **Automation Execution** → **Projects** on the left-hand side menu and click on the "Signed Project". Now, click the **Sync** button (the icon with two circling arrows) to sync the new changes.
 
 [IMPORTANT]
 ====
