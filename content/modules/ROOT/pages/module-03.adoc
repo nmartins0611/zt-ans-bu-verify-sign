@@ -69,6 +69,13 @@ cat .ansible-sign/sha256sum.txt.sig
 
 == Task 3: Push Signatures to Gitea
 
+[IMPORTANT]
+====
+.Gitea Credentials
+* **Username:** `gitea`
+* **Password:** `gitea`
+====
+
 Add the new signature files to git staging:
 
 [source,bash]
@@ -105,7 +112,7 @@ First, you need to add the public key (which you created in the previous challen
 cat ~/signing_demo.asc
 ----
 
-Go to the `Automation-Controller` tab and log in using the credentials below. Navigate to **Resources** → **Credentials** and click **Add**.
+Go to the `Automation-Controller` tab and log in using the credentials below. Navigate to **Automation Execution** → **Infrastructure ->**Credentials** and click **Create credential**.
 
 [IMPORTANT]
 ====
@@ -124,7 +131,7 @@ Click **Save**.
 
 === Create the Project
 
-Next, navigate to **Resources** → **Projects** and click **Add**. Fill out the form with the following details:
+Next, navigate to **Automation Execution** → **Projects** and click **Create project**. Fill out the form with the following details:
 
 [cols="1,2a"]
 |===
