@@ -23,8 +23,8 @@ It's important to understand the lab environment before starting the challenges.
 [IMPORTANT]
 ====
 .Gitea Credentials
-* **Username:** `student`
-* **Password:** `learn_ansible`
+* **Username:** `gitea`
+* **Password:** `gitea`
 ====
 
 ---
